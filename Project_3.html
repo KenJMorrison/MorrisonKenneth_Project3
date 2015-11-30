@@ -1,199 +1,167 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
 <head>
-    <meta charset='utf-8' />
-    <title>Project 3</title>
-    <style>
-	* { 
-		padding: 0; 
-		margin: 0; 
-	} 
-	canvas { 
-		background: #000; 
-		display: block; 
-		margin: 0 auto; 
+<title>MorrisonKenneth_Project3</title>
+<meta charset='utf-8'>
+<style>
+canvas{
+	border: 1px solid black;
+}
+</style>
+<script>
+
+	  var canvas;
+	  var context;
+	  var fireworks = [];
+	  var timer;
+	  var timerTwo;
+	  var timerThree;
+	  var timerFour;
+	  var timerFive;
+	  var possibleFireworks = ['triangle','square','circle', 'diamond', 'x'];
+	  function Firework(x, y, color) {
+		this.x = x;
+		this.y = y;
+		this.size = 50
+		this.dx = Math.random()*4-2;
+		this.dy = Math.random()*4-2;
+		this.color = color;
+		this.shape = possibleFireworks[Math.floor(Math.random()*possibleFireworks.length)];
+	  }
+	  
+      function init() {
+        canvas = document.getElementById('canvas');
+        context = canvas.getContext("2d");
+ 
+        window.addEventListener('resize', resizeCanvas, false);
+        window.addEventListener('orientationchange', resizeCanvas, false);
+        resizeCanvas();
+
+		makeFireworks();
+		
+		
+		timer = setInterval(resizeCanvas, 20);
+		timerTwo = setInterval (makeFireworks, 2000); 
+		timerThree = setInterval(drawText, 2000);  // The fallowing three are busted. I don't know what is up.
+		timerFour = clearInterval(resizeCanvas, 10000);
+		timerFive = clearInterval(makeFireworks, 10000)
+		
+      }
+	  
+	  function makeFireworks(){
+		
+		var x = Math.random() * canvas.width;
+		var y = Math.random() * canvas.height;
+		for(var i =0; i <30; i++){
+				var colors = ["#ff3300", "#ff6600", "#ffff00", "#ff9933", "#ffffff"];
+				var color = colors[Math.floor(Math.random()*colors.length)];
+			fireworks.push(new Firework(x, y, color));
+		}
+	  }
+	  
+
+	  
+	  function drawCircle(f) {
+		 context.beginPath();
+		 context.arc(f.x, f.y, f.size, 0, degreesToRadians(360), true);
+		 context.fillStyle = f.color;
+		 context.fill();
+	  }
+	  function drawSquare(f) {
+		context.beginPath();
+		context.fillStyle = f.color;
+		context.fillRect(f.x, f.y, f.size, f.size);
+      }	 
+	  function drawTriangle(f) {
+		context.beginPath();
+		context.fillStyle = f.color;
+		context.moveTo(f.x+f.size,f.y);
+		context.lineTo(f.x,f.y);
+		context.lineTo(f.x,f.y+f.size);
+	    context.closePath();
+        context.fill();
+	  }
+
+	  function drawDiamond(f) {
+		context.beginPath();
+		context.fillStyle = f.color;
+		context.moveTo(f.x+f.size,f.y+f.size);
+		context.lineTo(f.x+5,f.y+5);
+		context.lineTo(f.x,f.y+10);
+		context.lineTo(f.x-5,f.y+5);
+	    context.closePath();
+        context.fill();
+	  }
+	  	  function drawX(f) { // I don't know what happened
+		context.beginPath();
+		context.fillStyle = f.color;
+		context.moveTo(f.x+f.size, f.y);
+		context.lineTo(f.x+10, f.y+10);
+		context.lineTo(f.x+20, f.y+20);
+		context.lineTo(f.x+25, f.y+5);
+		context.lineTo(f.x+15, f.y+15);
+		context.lineTo(f.x+25, f.y+25);		
+		context.lineTo(f.x+20, f.y+30);
+		context.lineTo(f.x+10, f.y+20);
+		context.lineTo(f.x+30, f.y);
+		context.lineTo(f.x-5, f.y+25);
+		context.lineTo(f.x+5, f.y+10);
+		context.lineTo(f.x, f.y+f.size);
+	    context.closePath();
+        context.fill();
+		}
+	  
+	  function drawText() {
+	  
+	  	var x = Math.random() * canvas.width;
+		var y = Math.random() * canvas.height;
+		var texts = ["BOOM!", "BANG!", "POP!", "BLAST!"];
+		var text = texts[Math.floor(Math.random()*texts.length)];
+		context.fillStyle = 'white';
+		context.font = 'bold 2em sans-serif';
+		context.textAlign = 'cwnter';
+		context.fillText(text, x, y);
+
 	}
-	</style>
+
+function resizeCanvas(){
+
+	context.globalCompositOperation = 'source-over';
+	context.fillStyle = 'rgba(0, 0, 0, 0.3)';
+	context.fillRect(0, 0, canvas.width, canvas.height);
+	context.globalCompositOperation = 'lighter';
+	for(var i = 0; i < fireworks.length; i++){
+		var f = fireworks[i];
+		if (f.shape == 'square') {
+				drawSquare(f);
+		} else if (f.shape == 'circle') {
+				drawCircle(f);
+		} else if (f.shape == 'triangle') {
+				drawTriangle(f);
+		} else if (f.shape == 'diamond') { //I don't know why this and X won't shrink.
+				drawDiamond(f);
+		} else if (f.shape == 'x') {
+				drawX(f);
+		} 
+			if (f.x + f.dx > canvas.width || f.x + f.dx < 0)
+				f.dx = -f.dx;
+			if (f.y + f.dy > canvas.height || f.y + f.dy < 0)
+				f.dy = -f.dy;
+				f.x += f.dx;
+				f.y += f.dy;
+			if(f.size > 0) f.size--;
+		}
+		drawText();	
+
+}
+
+
+	function degreesToRadians(degrees) {
+		return (degrees * Math.PI)/180;
+	}
+	window.onload = init;
+</script>
 </head>
 <body>
-
-<canvas id='myCanvas' width='640' height='480'></canvas>
-
-<script>
-    var canvas = document.getElementById('myCanvas');
-    var context = canvas.getContext('2d');
-	var ball = {
-		'radius': 15,
-		'x': canvas.width/2,
-		'y': canvas.height-30,
-		'dx': 2,
-		'dy': -2
-	}
-	var paddle = {
-		'height': 20,
-		'width': 100,
-		'x': (canvas.width-this.width)/2
-	}
-    var rightPressed = false;
-    var leftPressed = false;
-    var brickRowCount = 7;
-    var brickColumnCount = 4;
-    var brickWidth = 75;
-    var brickHeight = 20;
-    var brickPadding = 10;
-    var brickOffsetTop = 30;
-    var brickOffsetLeft = 30;
-    var score = 0;
-    var bricks = [];
-	 var timer;
-
-    for(var c=0; c<brickColumnCount; c++) {
-        bricks[c] = [];
-        for(var r=0; r<brickRowCount; r++) {
-            bricks[c][r] = { x: 0, y: 0, status: 1 };
-        }
-    }
-    document.addEventListener('keydown', keyDownHandler, false);
-    document.addEventListener('keyup', keyUpHandler, false);
-    document.addEventListener('mousemove', mouseMoveHandler, false);
-    function keyDownHandler(e) {
-        if(e.keyCode == 39) {
-            rightPressed = true;
-        }
-        else if(e.keyCode == 37) {
-            leftPressed = true;
-        }
-    }
-    function keyUpHandler(e) {
-        if(e.keyCode == 39) {
-            rightPressed = false;
-        }
-        else if(e.keyCode == 37) {
-            leftPressed = false;
-        }
-    }
-    function mouseMoveHandler(e) {
-        var relativeX = e.clientX - canvas.offsetLeft;
-        if(relativeX > 0 && relativeX < canvas.width) {
-            paddle.x = relativeX - paddle.width/2;
-        }
-    }
-    function collisionDetection() {
-        for(c=0; c<brickColumnCount; c++) {
-            for(r=0; r<brickRowCount; r++) {
-                var b = bricks[c][r];
-                if(b.status == 1) {
-                    if(ball.x > b.x && ball.x < b.x+brickWidth && ball.y > b.y && ball.y < b.y+brickHeight) {
-                        ball.dy = -ball.dy;
-                        b.status = 0;
-                        score++;
-                        if(score == brickRowCount*brickColumnCount) {
-                            alert('YOU WIN, CONGRATS!');
-                            document.location.reload();
-                        }
-                    }
-                }
-            }
-        }
-    }
-    function drawBall() { // I'm trying to make the ball have a 'trail' but I'm trying and I'm not sure how it was done.
-        context.beginPath();
-        context.arc(ball.x, ball.y, ball.radius, 0, Math.PI*2);
-        context.fillStyle = '#00efe6';
-        context.fill();
-		context.globalCompositeOperation = "source-over";
-		context.fillStyle = "rgba(0, 0, 0, 0.3)";
-		context.fillRect(0, 0, canvas.width, canvas.height);
-		context.globalCompositOperation = 'lighter';
-		        context.closePath();
-			for(var i = 0; i < ball.length; i++){
-		var b = ball[i];
-		context.beginPath();
-		context.arc(b.x, b.y, b.radius, 0, degreesToRadians(360), true);
-		context.fillStyle = b.color;
-		context.fill();
-		
-		b.x += b.vx;
-		b.y += b.vy;
-		
-		if(b.x < -50) b.x = canvas.width + 50;
-		if(b.y < -50) b.y = canvas.height + 50; 
-		if(b.x > canvas.width + 50) b.x = -50;
-		if(b.y > canvas.height + 50) b.y = -50;
-		}
-    }
-	
-
-	
-	
-    function drawPaddle() {
-        context.beginPath();
-        context.rect(paddle.x, canvas.height-paddle.height, paddle.width, paddle.height);
-        context.fillStyle = '#ffffff';
-        context.fill();
-        context.closePath();
-    }
-    function drawBricks() { 
-        for(c=0; c<brickColumnCount; c++) {
-            for(r=0; r<brickRowCount; r++) {
-                if(bricks[c][r].status == 1) {
-                    var brickX = (r*(brickWidth+brickPadding))+brickOffsetLeft;
-                    var brickY = (c*(brickHeight+brickPadding))+brickOffsetTop;                 	
-					var colors = ["#ff9900", "#ff471a", "#e6005c", "#ffff00", "#ffffff"];
-					var color = colors[Math.floor(Math.random()*colors.length)];
-                    bricks[c][r].x = brickX;
-                    bricks[c][r].y = brickY;
-                    context.beginPath();
-                    context.rect(brickX, brickY, brickWidth, brickHeight);
-					context.fillStyle = color;
-					context.fill();
-                    context.closePath();
-                }
-            }
-        }
-    }
-    function drawScore() {
-        context.font = '20px Arial';
-        context.fillStyle = '#ffffff';
-        context.fillText('Score: '+score, 320, 20);
-		context.textAlign = 'center'
-    }
-    function draw() {
-        context.clearRect(0, 0, canvas.width, canvas.height);
-        drawBricks();
-        drawBall();
-        drawPaddle();
-        drawScore();
-        collisionDetection();
-        if(ball.x + ball.dx > canvas.width-ball.radius || ball.x + ball.dx < ball.radius) {
-            ball.dx = -ball.dx;
-        }
-        if(ball.y + ball.dy < ball.radius) {
-            ball.dy = -ball.dy;
-        }
-        else if(ball.y + ball.dy > canvas.height-ball.radius) {
-            if(ball.x > paddle.x && ball.x < paddle.x + paddle.width) {
-                ball.dy = -ball.dy;
-            }
-            else {
-                alert('GAME OVER');
-                document.location.reload();
-            }
-        }
-        if(rightPressed && paddle.x < canvas.width-paddle.width) {
-            paddle.x += 7;
-        }
-        else if(leftPressed && paddle.x > 0) {
-            paddle.x -= 7;
-        }
-        ball.x += ball.dx;
-        ball.y += ball.dy;
-    }
-	
-
-    setInterval(draw, 10);
-	timer = setInterval(drawBall, 5);
-</script>
-
-</body>
-</html>
+<canvas id='canvas' width=640 height=480></canvas>
+</body>	  
